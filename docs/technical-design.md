@@ -15,7 +15,7 @@ Build one Next.js App Router application with client-side workspace state and a 
 | Grounded fact | Evidence |
 | --- | --- |
 | Repository starts with only a title README, no manifest or implementation | Git tree at `6f62be4e66316c7e2d7406ccb0e2a277c0fafa9f` |
-| Product scope and stack are mandated | Issue ALFRED-11; normative scope in PRD |
+| Product scope and stack are mandated | Stage 1 Specification (`01a15826-4d9a-72ea-bc9a-168ca9484ff3`); normative scope in PRD |
 | Build commands do not exist at this baseline | Same tree; tasks ch. 2 requires their creation |
 
 Non-goals remain owned by PRD ch. 6. There are no unresolved product questions required to begin implementation. Package versions are implementation choices: Engineer must use compatible stable versions, pin via lockfile, and record them in evidence rather than treating this design as a claim of current versions.

@@ -1,0 +1,220 @@
+@import "tailwindcss";
+
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --cl-canvas: #f8fafc;
+  --cl-surface: #ffffff;
+  --cl-surface-alt: #f1f5f9;
+  --cl-text: #0f172a;
+  --cl-text-muted: #334155;
+  --cl-border: #64748b;
+  --cl-border-subtle: #475569;
+  --cl-action: #1d4ed8;
+  --cl-action-hover: #1e40af;
+  --cl-action-text: #ffffff;
+  --cl-focus: #1d4ed8;
+  --cl-status-error-bg: #fef2f2;
+  --cl-status-error-border: #b91c1c;
+  --cl-status-error-text: #991b1b;
+  --cl-status-warning-bg: #fffbeb;
+  --cl-status-warning-border: #b45309;
+  --cl-status-warning-text: #78350f;
+  --cl-status-success-bg: #f0fdf4;
+  --cl-status-success-border: #15803d;
+  --cl-status-success-text: #14532d;
+  --cl-status-info-bg: #eff6ff;
+  --cl-status-info-border: #1d4ed8;
+  --cl-status-info-text: #1e3a8a;
+  --cl-chart-bar: #1d4ed8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --cl-canvas: #090d16;
+    --cl-surface: #0f172a;
+    --cl-surface-alt: #1e293b;
+    --cl-text: #f8fafc;
+    --cl-text-muted: #cbd5e1;
+    --cl-border: #94a3b8;
+    --cl-border-subtle: #cbd5e1;
+    --cl-action: #1d4ed8;
+    --cl-action-hover: #2563eb;
+    --cl-action-text: #ffffff;
+    --cl-focus: #60a5fa;
+    --cl-status-error-bg: #2c0b0e;
+    --cl-status-error-border: #f87171;
+    --cl-status-error-text: #fecaca;
+    --cl-status-warning-bg: #291502;
+    --cl-status-warning-border: #fbbf24;
+    --cl-status-warning-text: #fde68a;
+    --cl-status-success-bg: #052e16;
+    --cl-status-success-border: #4ade80;
+    --cl-status-success-text: #bbf7d0;
+    --cl-status-info-bg: #0c1938;
+    --cl-status-info-border: #60a5fa;
+    --cl-status-info-text: #bfdbfe;
+    --cl-chart-bar: #60a5fa;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --cl-canvas: #090d16;
+  --cl-surface: #0f172a;
+  --cl-surface-alt: #1e293b;
+  --cl-text: #f8fafc;
+  --cl-text-muted: #cbd5e1;
+  --cl-border: #94a3b8;
+  --cl-border-subtle: #cbd5e1;
+  --cl-action: #1d4ed8;
+  --cl-action-hover: #2563eb;
+  --cl-action-text: #ffffff;
+  --cl-focus: #60a5fa;
+  --cl-status-error-bg: #2c0b0e;
+  --cl-status-error-border: #f87171;
+  --cl-status-error-text: #fecaca;
+  --cl-status-warning-bg: #291502;
+  --cl-status-warning-border: #fbbf24;
+  --cl-status-warning-text: #fde68a;
+  --cl-status-success-bg: #052e16;
+  --cl-status-success-border: #4ade80;
+  --cl-status-success-text: #bbf7d0;
+  --cl-status-info-bg: #0c1938;
+  --cl-status-info-border: #60a5fa;
+  --cl-status-info-text: #bfdbfe;
+  --cl-chart-bar: #60a5fa;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  background-color: var(--cl-canvas);
+  color: var(--cl-text);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+}
+
+code,
+pre,
+.cl-mono {
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    "Liberation Mono",
+    "Courier New",
+    monospace;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cl-focus);
+  outline-offset: 2px;
+}
+
+dialog::backdrop {
+  background-color: rgba(15, 23, 42, 0.65);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.cl-surface {
+  background-color: var(--cl-surface);
+  color: var(--cl-text);
+  border-color: var(--cl-border);
+}
+
+.cl-surface-alt {
+  background-color: var(--cl-surface-alt);
+  color: var(--cl-text);
+  border-color: var(--cl-border);
+}
+
+.cl-text-muted {
+  color: var(--cl-text-muted);
+}
+
+.cl-btn-primary {
+  background-color: var(--cl-action);
+  color: var(--cl-action-text);
+  border: 1px solid var(--cl-action);
+}
+
+.cl-btn-primary:hover:not(:disabled) {
+  background-color: var(--cl-action-hover);
+}
+
+.cl-btn-secondary {
+  background-color: var(--cl-surface);
+  color: var(--cl-text);
+  border: 1px solid var(--cl-border);
+}
+
+.cl-btn-secondary:hover:not(:disabled) {
+  background-color: var(--cl-surface-alt);
+}
+
+.cl-btn-secondary:disabled,
+.cl-btn-primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.cl-input {
+  background-color: var(--cl-surface);
+  color: var(--cl-text);
+  border: 1px solid var(--cl-border);
+}
+
+.cl-badge-error {
+  background-color: var(--cl-status-error-bg);
+  border: 1px solid var(--cl-status-error-border);
+  color: var(--cl-status-error-text);
+}
+
+.cl-badge-warning {
+  background-color: var(--cl-status-warning-bg);
+  border: 1px solid var(--cl-status-warning-border);
+  color: var(--cl-status-warning-text);
+}
+
+.cl-badge-success {
+  background-color: var(--cl-status-success-bg);
+  border: 1px solid var(--cl-status-success-border);
+  color: var(--cl-status-success-text);
+}
+
+.cl-badge-info {
+  background-color: var(--cl-status-info-bg);
+  border: 1px solid var(--cl-status-info-border);
+  color: var(--cl-status-info-text);
+}
