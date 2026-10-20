@@ -119,7 +119,7 @@ export function PipelineBuilder({
             type="button"
             onClick={onOpenCatalogDrawer}
             data-testid="pipeline-open-catalog-btn"
-            className="cl-btn-secondary xl:hidden rounded px-2.5 py-1 text-xs font-medium"
+            className="cl-btn-secondary min-[1200px]:hidden rounded px-2.5 py-1 text-xs font-medium"
           >
             Browse Catalog
           </button>

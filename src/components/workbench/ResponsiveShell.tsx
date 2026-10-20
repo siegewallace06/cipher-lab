@@ -117,7 +117,7 @@ export function ResponsiveShell({
           data-testid="pipeline-column"
           className={`${
             mobileTab === 'pipeline' ? 'block' : 'hidden'
-          } min-w-0 md:col-span-5 md:block min-[1200px]:col-span-4`}
+          } min-w-0 md:block md:max-[1199px]:col-span-5 min-[1200px]:col-span-4`}
         >
           {pipeline}
         </div>
@@ -125,7 +125,7 @@ export function ResponsiveShell({
         {/* Input + Output Data Column */}
         <div
           data-testid="data-column"
-          className="flex min-w-0 flex-col gap-3 md:col-span-7 min-[1200px]:col-span-5"
+          className="flex min-w-0 flex-col gap-3 md:max-[1199px]:col-span-7 min-[1200px]:col-span-5"
         >
           <div
             data-testid="input-pane-wrapper"

@@ -10,6 +10,7 @@ import {
   decodeUtf8LossyPreview,
   decodeUtf8OrNull,
 } from '@/lib/bytes';
+import { checkJsonPrecisionNotice } from '@/operations/encoding';
 import type { DataViewMode } from '@/state/workspace';
 
 export interface InspectorProps {
@@ -95,6 +96,13 @@ export function Inspector({
     } catch {
       return null;
     }
+  }, [step, utf8Text]);
+
+  const jsonPrecisionNotice = useMemo((): string | null => {
+    if (!step || step.operationId !== 'json' || !utf8Text) {
+      return null;
+    }
+    return checkJsonPrecisionNotice(utf8Text) ?? null;
   }, [step, utf8Text]);
 
   if (!step) {
@@ -232,6 +240,16 @@ export function Inspector({
               message="Intermediate bytes are not valid UTF-8. Hex Dump is authoritative; text preview uses U+FFFD replacement characters and is lossy."
               live="off"
               testId="inspector-binary-warning"
+            />
+          ) : null}
+
+          {jsonPrecisionNotice ? (
+            <StatusMessage
+              tone="warning"
+              title="JSON Large-Integer Precision Notice"
+              message={jsonPrecisionNotice}
+              live="off"
+              testId="inspector-json-precision-warning"
             />
           ) : null}
 

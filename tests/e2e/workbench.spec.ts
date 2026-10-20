@@ -32,25 +32,90 @@ test.describe('Cipher Lab Workbench E2E Suite', () => {
     await page.goto('/');
     await expect(page.getByTestId('workbench-toolbar')).toBeVisible();
 
-    const viewports = [
+    const desktopViewports = [
       { width: 1920, height: 1080 },
       { width: 1366, height: 900 },
-      { width: 768, height: 1024 },
-      { width: 320, height: 720 },
+      { width: 1240, height: 900 },
     ];
 
-    for (const vp of viewports) {
+    for (const vp of desktopViewports) {
       await page.setViewportSize(vp);
-      const overflow = await page.evaluate(() => {
-        return (
-          document.documentElement.scrollWidth >
-          document.documentElement.clientWidth
-        );
+      await expect(page.getByTestId('desktop-catalog-column')).toBeVisible();
+      await expect(page.getByTestId('pipeline-column')).toBeVisible();
+      await expect(page.getByTestId('data-column')).toBeVisible();
+      await expect(
+        page.getByTestId('pipeline-open-catalog-btn'),
+      ).not.toBeVisible();
+
+      const desktopLayout = await page.evaluate(() => {
+        const cat = document.querySelector(
+          '[data-testid="desktop-catalog-column"]',
+        )!;
+        const pipe = document.querySelector('[data-testid="pipeline-column"]')!;
+        const data = document.querySelector('[data-testid="data-column"]')!;
+        return {
+          overflow:
+            document.documentElement.scrollWidth >
+            document.documentElement.clientWidth,
+          catTop: cat.getBoundingClientRect().top,
+          pipeTop: pipe.getBoundingClientRect().top,
+          dataTop: data.getBoundingClientRect().top,
+          catGridColumn: getComputedStyle(cat).gridColumn,
+          pipeGridColumn: getComputedStyle(pipe).gridColumn,
+          dataGridColumn: getComputedStyle(data).gridColumn,
+        };
       });
-      expect(overflow, `No horizontal overflow at ${vp.width}x${vp.height}`).toBe(
-        false,
-      );
+
+      expect(
+        desktopLayout.overflow,
+        `No horizontal overflow at ${vp.width}x${vp.height}`,
+      ).toBe(false);
+      expect(desktopLayout.catGridColumn).toBe('span 3 / span 3');
+      expect(desktopLayout.pipeGridColumn).toBe('span 4 / span 4');
+      expect(desktopLayout.dataGridColumn).toBe('span 5 / span 5');
+      expect(
+        Math.abs(desktopLayout.catTop - desktopLayout.pipeTop),
+      ).toBeLessThanOrEqual(2);
+      expect(
+        Math.abs(desktopLayout.pipeTop - desktopLayout.dataTop),
+      ).toBeLessThanOrEqual(2);
     }
+
+    // Verify tablet 2-column grid layout at 768x1024
+    await page.setViewportSize({ width: 768, height: 1024 });
+    await expect(page.getByTestId('pipeline-column')).toBeVisible();
+    await expect(page.getByTestId('data-column')).toBeVisible();
+    await expect(page.getByTestId('pipeline-open-catalog-btn')).toBeVisible();
+    const tabletLayout = await page.evaluate(() => {
+      const pipe = document.querySelector('[data-testid="pipeline-column"]')!;
+      const data = document.querySelector('[data-testid="data-column"]')!;
+      return {
+        overflow:
+          document.documentElement.scrollWidth >
+          document.documentElement.clientWidth,
+        pipeTop: pipe.getBoundingClientRect().top,
+        dataTop: data.getBoundingClientRect().top,
+        pipeGridColumn: getComputedStyle(pipe).gridColumn,
+        dataGridColumn: getComputedStyle(data).gridColumn,
+      };
+    });
+    expect(tabletLayout.overflow, 'No horizontal overflow at 768x1024').toBe(
+      false,
+    );
+    expect(tabletLayout.pipeGridColumn).toBe('span 5 / span 5');
+    expect(tabletLayout.dataGridColumn).toBe('span 7 / span 7');
+    expect(
+      Math.abs(tabletLayout.pipeTop - tabletLayout.dataTop),
+    ).toBeLessThanOrEqual(2);
+
+    // Verify mobile layout at 320x720
+    await page.setViewportSize({ width: 320, height: 720 });
+    const mobileOverflow = await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth >
+        document.documentElement.clientWidth,
+    );
+    expect(mobileOverflow, 'No horizontal overflow at 320x720').toBe(false);
 
     // Restore desktop viewport for theme & axe checks
     await page.setViewportSize({ width: 1366, height: 900 });
@@ -143,6 +208,16 @@ test.describe('Cipher Lab Workbench E2E Suite', () => {
     await expect(page.getByTestId('output-text-view')).toHaveText(
       '00ff807f',
     );
+
+    // Verify JSON step large-integer precision warning in Inspector
+    await page.getByTestId('toolbar-clear-btn').click();
+    await page
+      .getByTestId('input-textarea')
+      .fill('{"id": 9007199254740993}');
+    await page.getByTestId('add-op-json').click();
+    await expect(
+      page.getByTestId('inspector-json-precision-warning'),
+    ).toBeVisible();
   });
 
   test('supports format detection quick-apply, starter presets with confirmation, and #cl= URL sharing with secret stripping', async ({
