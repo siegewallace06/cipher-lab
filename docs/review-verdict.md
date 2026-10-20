@@ -4,7 +4,8 @@
 - **Parent Issue**: `ALFRED-10` (`01a15824-1bef-70a9-94b3-ecd913bcc2f7`)
 - **Implementation Issue**: `ALFRED-12` (`01a15826-4e64-7697-825a-31019768b327`)
 - **Pull Request**: [#1 (`feat/alfred-12-cipher-lab`)](https://github.com/siegewallace06/cipher-lab/pull/1)
-- **Reviewed Commit**: `c2118a25b6f6c03ec3a2c16503aea0d73afadee1`
+- **Initial Reviewed Commit**: `c2118a25b6f6c03ec3a2c16503aea0d73afadee1`
+- **Fix Cycle 1 Re-Reviewed Commit**: `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980`
 - **Reviewer**: `The Reviewer` (`daf1890c-ac4a-46cd-bef5-15a40709bf43`)
 - **Review Verdict**: **`APPROVED`**
 
@@ -12,10 +13,10 @@
 
 ## 1. Executive Summary
 
-An independent diff, architecture, security, and test-quality audit was conducted on `feat/alfred-12-cipher-lab` (`c2118a25b6f6c03ec3a2c16503aea0d73afadee1`) against the normative requirements in [`docs/prd.md`](prd.md), [`docs/technical-design.md`](technical-design.md), [`docs/tasks.md`](tasks.md), and [`docs/decisions.md`](decisions.md).
+An independent diff, architecture, security, and test-quality audit was conducted on `feat/alfred-12-cipher-lab` (initial implementation commit `c2118a25b6f6c03ec3a2c16503aea0d73afadee1` and Fix Cycle 1 commit `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980`) against the normative requirements in [`docs/prd.md`](prd.md), [`docs/technical-design.md`](technical-design.md), [`docs/tasks.md`](tasks.md), and [`docs/decisions.md`](decisions.md).
 
 - **Blocking Findings**: **0**
-- **Non-Blocking Suggestions**: **2**
+- **Non-Blocking Suggestions**: **0 open** (2 initial suggestions resolved in Fix Cycle 1 commit `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980`)
 - **Review Verdict**: **`APPROVED`**
 
 ---
@@ -92,26 +93,31 @@ An independent diff, architecture, security, and test-quality audit was conducte
 - **Browser E2E & Accessibility Tests (`tests/e2e/workbench.spec.ts`)**: 4 Playwright end-to-end scenarios verifying zero horizontal overflow across `1920x1080`, `1366x900`, `768x1024`, and `320x720`, `@axe-core/playwright` WCAG 2.2 AA compliance in both dark and light themes, zero external network requests, multi-step pipeline + inspector + entropy chart + hex input, format detection + preset confirmation + `#cl=` secret-stripped sharing, and XSS payload inertness.
 
 ### 4.2 Executed Verification Commands
-The Reviewer independently executed the following verification commands on commit `c2118a25b6f6c03ec3a2c16503aea0d73afadee1`:
+The Reviewer independently executed the following verification commands on initial commit `c2118a25b6f6c03ec3a2c16503aea0d73afadee1` and re-executed the full verification suite on Fix Cycle 1 commit `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980`:
 1. `npm ci` → **PASS** (0 errors)
 2. `npm run lint` (`eslint .`) → **PASS** (0 errors, 0 warnings)
 3. `npm run type-check` (`tsc --noEmit`) → **PASS** (0 errors)
 4. `npm test` (`vitest run`) → **PASS** (8 test files, 59 tests passed)
 5. `npm run build` (`next build`) → **PASS** (production build succeeded)
+6. `npm run test:e2e` (`playwright test`) → **PASS** (4/4 E2E & WCAG 2.2 AA browser suites passed, including multi-viewport desktop `3+4+5=12` / tablet `5+7=12` grid row alignment assertions at `1920x1080`, `1366x900`, `1240x900`, `768x1024`, `320x720` and `inspector-json-precision-warning`)
+7. Prohibited-terms scan (`git grep -iE "batman|gotham|wayne|arkham|bruce|alfred|cyberchef|cryptii|dcode"`) → **PASS** (0 matches)
 
 ---
 
-## 5. Findings
+## 5. Findings & Step 8 Fix Cycle 1 Re-Review (`3c31f4cfa2e980ca283621e8c4a8ac8c0db12980`)
 
 ### 5.1 Blocking Findings
 **None (0 blocking findings).**
 
-### 5.2 Non-Blocking Findings / Suggestions
+### 5.2 Resolution of QA `DEFECT-01` & Non-Blocking Suggestions in Commit `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980`
 
-1. **`README.md:16-20` & `README.md:82` — Align README operation bullet summary with canonical registry**:
-   - *Observation*: `README.md` lines 16–20 list several operation names from an earlier draft (`Base58`, `ROT47`, `Beaufort`, `Affine`) and line 82 mentions `UNSUPPORTED_CAPABILITY`, whereas `src/engine/registry.ts`, `docs/prd.md`, `docs/technical-design.md`, and the test suite implement the exact 28 canonical operations and `UNSUPPORTED_ENVIRONMENT`.
-   - *Suggestion*: Update the bullet list in `README.md` to mirror the 28 canonical operation IDs in `src/engine/registry.ts` and `UNSUPPORTED_ENVIRONMENT` during a future documentation cleanup.
+1. **QA `DEFECT-01` (`AC-13` Desktop 3-Column Grid Layout & `Browse Catalog` Button Visibility) — `RESOLVED`**:
+   - `src/components/workbench/ResponsiveShell.tsx:117-129`: Scoped the tablet column spans (`md:max-[1199px]:col-span-5` on `pipeline-column` and `md:max-[1199px]:col-span-7` on `data-column`) so they do not override `min-[1200px]:col-span-4` and `min-[1200px]:col-span-5` in Tailwind CSS v4 compiled output. Verified in compiled `.next/static/css/*.css` and Playwright E2E that at `1240x900`, `1366x900`, and `1920x1080`, `desktop-catalog-column` (`span 3 / span 3`), `pipeline-column` (`span 4 / span 4`), and `data-column` (`span 5 / span 5`) sum to 12 columns and align on the same top row (`Math.abs(catTop - pipeTop) <= 2` and `Math.abs(pipeTop - dataTop) <= 2`).
+   - `src/components/pipeline/PipelineBuilder.tsx:122`: Changed `pipeline-open-catalog-btn` from `xl:hidden` (`1280px`) to `min-[1200px]:hidden` (`1200px`), matching `isDesktopCatalogVisible` so `Browse Catalog` is hidden whenever the inline desktop catalog column is rendered.
+   - `tests/e2e/workbench.spec.ts:35-119`: Added Playwright E2E assertions verifying `gridColumn` spans, top-row alignment (`<= 2px`), and `pipeline-open-catalog-btn` visibility across `1920x1080`, `1366x900`, `1240x900`, `768x1024`, and `320x720`.
 
-2. **`src/operations/encoding.ts:471-546` — Surface `checkJsonPrecisionNotice` in step inspector UI**:
-   - *Observation*: `checkJsonPrecisionNotice` is implemented and unit-tested (`tests/unit/operations/encoding.test.ts:276-280`) to detect JSON integers outside `±(2^53 - 1)`, and `scanRawJsonSafety` is also used during JSON validation, but `OperationDefinition.execute` returns `Uint8Array` directly so the precision warning string is not currently rendered as a separate banner in `Inspector.tsx` or `OutputPane.tsx`.
-   - *Suggestion*: Consider calling `checkJsonPrecisionNotice` in `Inspector.tsx` when inspecting a `json` step so users see an inline informational banner alongside the formatted JSON output.
+2. **Reviewer Suggestion 1 / QA `OBS-01` (`README.md:15-19` & `README.md:82` Canonical Operation Summary) — `RESOLVED`**:
+   - `README.md:15-19` now lists the exact 28 canonical operations and IDs across the 4 categories (`Encoding & Formats (9)`, `Ciphers & Bitwise (7)`, `Hashing, Checksums & Crypto (7)`, `Text & Byte Analysis (5)`), removing all non-canonical draft names (`Base58`, `ASCII Decimal`, `Unicode Escape`, `ROT47`, `Beaufort`, `Affine`).
+
+3. **Reviewer Suggestion 2 (`src/components/pipeline/Inspector.tsx:59-64, 246-254` Inline `checkJsonPrecisionNotice` Warning) — `RESOLVED`**:
+   - `Inspector.tsx` now evaluates `checkJsonPrecisionNotice(utf8Text)` when inspecting a `json` step and renders an inline warning `<StatusMessage testId="inspector-json-precision-warning" />` when integers outside `Number.MAX_SAFE_INTEGER` (`±(2^53 - 1)`) are present, backed by an E2E assertion in `tests/e2e/workbench.spec.ts:212-220`.
