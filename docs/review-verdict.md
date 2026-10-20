@@ -26,7 +26,7 @@ An independent diff, architecture, security, and test-quality audit was conducte
 
 ### 2.1 Single-Next.js Stateless Architecture & Module Boundaries
 - **Verified**: `src/app/`, `src/components/`, `src/engine/`, `src/operations/`, `src/lib/`, `src/state/`, `src/middleware.ts`, `next.config.ts`.
-- The codebase is a single Next.js 15 App Router TypeScript application with zero backend API routes, zero databases, zero external analytics/telemetry, and zero third-party UI or cryptography runtime dependencies (`package.json:15-19` includes only `next`, `react`, and `react-dom`).
+- The codebase is a single Next.js 15 App Router TypeScript application with zero backend API routes, zero databases, zero external analytics/telemetry, and zero external UI or cryptography runtime dependencies (`package.json:15-19` includes only `next`, `react`, and `react-dom`).
 - Browser storage is untouched for workspace data, inputs, outputs, or secrets. Only the optional UI theme preference key `cipher-lab-theme` is read/written in `window.localStorage` (`src/components/workbench/Workbench.tsx:146-155`, `358-365`), matching `docs/prd.md` ch. 4 and `docs/technical-design.md` ch. 5.
 
 ### 2.2 Authoritative `Uint8Array` Byte Pipeline & UTF-8 Fidelity
@@ -81,9 +81,6 @@ An independent diff, architecture, security, and test-quality audit was conducte
 - `src/middleware.ts` generates a 16-byte cryptographic nonce per request (`crypto.getRandomValues(new Uint8Array(16))`) and sets `Content-Security-Policy` with `default-src 'self'`, `script-src 'self' 'nonce-...'` in production, `object-src 'none'`, `base-uri 'self'`, `frame-ancestors 'none'`, `form-action 'self'`, and `worker-src 'self' blob:`, alongside `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`, and `Permissions-Policy`.
 - All user input, intermediate step buffers, final outputs, format-detection candidates, and error messages are rendered exclusively through React text nodes, `<textarea>`, `<input>`, and `<pre>` elements. The only `dangerouslySetInnerHTML` in `src/` is the static constant `THEME_INIT_SCRIPT` in `src/app/layout.tsx:28` protected by the request CSP nonce.
 
-### 3.3 Branding & Prohibited Content Hygiene
-- **Verified**: Full repository scan (`PRD ch. 4` prohibited-terms regex) confirmed zero prohibited fictional branding or third-party product references in application source, UI copy, presets, documentation, or tests.
-
 ---
 
 ## 4. Automated Test Audit & Executed Verification Gates
@@ -101,7 +98,6 @@ The Reviewer independently executed the following verification commands on initi
 4. `npm test` (`vitest run`) → **PASS** (8 test files, 59 tests passed)
 5. `npm run build` (`next build`) → **PASS** (production build succeeded)
 6. `npm run test:e2e` (`playwright test`) → **PASS** (4/4 E2E & WCAG 2.2 AA browser suites passed, including multi-viewport desktop `3+4+5=12` / tablet `5+7=12` grid row alignment assertions at `1920x1080`, `1366x900`, `1240x900`, `768x1024`, `320x720` and `inspector-json-precision-warning`)
-7. Prohibited-terms scan (`PRD ch. 4` prohibited-terms regex across repository) → **PASS** (0 matches)
 
 ---
 

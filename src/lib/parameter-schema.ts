@@ -93,7 +93,7 @@ export function validateParametersAgainstFields(
     if (FORBIDDEN_KEYS.has(key)) {
       errors.push({
         code: 'INVALID_PARAMETERS',
-        message: 'Prototype-related parameter keys are prohibited.',
+        message: 'Prototype-related parameter keys are forbidden.',
         field: key,
       });
       continue;

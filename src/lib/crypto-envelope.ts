@@ -143,7 +143,7 @@ export function parseAndValidateEnvelopeV1(
   if (rawCheck.hasForbiddenKey || rawCheck.hasDuplicateKey) {
     throw new OperationFailure(
       'INVALID_INPUT',
-      'AES-GCM envelope contains prohibited or duplicate JSON properties.',
+      'AES-GCM envelope contains forbidden or duplicate JSON properties.',
     );
   }
 

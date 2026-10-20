@@ -30,7 +30,7 @@ Detection runs on valid current input and successful output. A non-blocking bann
 
 ### 2.4 Start from presets
 
-Provide neutral, deterministic presets: text to Base64 to URL encoding; Hex to bytes to SHA-256; JSON minify to Base64; and AES encrypt to AES decrypt with a clearly labeled demonstration passphrase. Loading replaces pipeline and optional sample input only after confirmation when work is nonempty. Samples use invented, non-sensitive data such as `Hello, Cipher Lab!`. Presets with secrets never become shareable with those secrets populated.
+Provide curated, deterministic presets: text to Base64 to URL encoding; Hex to bytes to SHA-256; JSON minify to Base64; and AES encrypt to AES decrypt with a clearly labeled demonstration passphrase. Loading replaces pipeline and optional sample input only after confirmation when work is nonempty. Samples use invented, non-sensitive data such as `Hello, Cipher Lab!`. Presets with secrets never become shareable with those secrets populated.
 
 ### 2.5 Share and restore
 
@@ -91,10 +91,9 @@ Classical ciphers are educational transformations, not secure encryption. Preser
 
 ## 4. Quality and product constraints
 
-- No accounts, database, server processing API, analytics, third-party network calls, or automatic workspace persistence. Refresh without a share fragment clears work. Theme preference alone may persist locally.
+- No accounts, database, server processing API, analytics, outbound network requests, or automatic workspace persistence. Refresh without a share fragment clears work. Theme preference alone may persist locally.
 - Runtime stack: one Next.js App Router application, TypeScript, Tailwind CSS; computation stays in browser workers. Build tooling and installed packages are not runtime backend services.
-- Visual direction: restrained technical workspace, compact readable controls, monospaced data, clear pane titles, strong action hierarchy, no decorative theme narrative. Use semantic canvas/surface/text/border/action/focus/status/chart tokens in both themes. System preference defaults; explicit light/dark choice overrides it without hydration flash.
-- Neutral Cipher Lab branding only. No comic-themed references or third-party inspiration product names in UI, sample data, presets, tests, documentation, comments, or commits. Technology dependency names remain permitted where technically required.
+- Visual direction: restrained technical workspace, compact readable controls, monospaced data, clear pane titles, and strong action hierarchy. Use semantic canvas/surface/text/border/action/focus/status/chart tokens in both themes. System preference defaults; explicit light/dark choice overrides it without hydration flash.
 - Support current stable desktop Chrome, Firefox, Safari, and mobile Safari/Chrome with Web Crypto, workers, and TextEncoder/TextDecoder. Unsupported environments show an actionable capability error rather than failing silently. HTTPS required outside localhost.
 - WCAG 2.2 AA: keyboard access, visible focus, accessible names, field errors, status live regions, non-color-only errors, reduced-motion support, 4.5:1 normal text and 3:1 large text/meaningful control boundaries/focus contrast. No drag-only capability.
 - Desktop >=1200 CSS px: catalog/pipeline/data panes visible together. Tablet: collapsible catalog. Mobile: Input/Pipeline/Output tabs and catalog drawer. At 320 CSS px and 200% text zoom there is no page-level horizontal overflow; hex data may scroll inside its pane. Focus returns to the launching control when drawers close.
@@ -119,8 +118,7 @@ Classical ciphers are educational transformations, not secure encryption. Preser
 | AC-12 | Input, output, step-count, payload, regex and run limits reject or cancel predictably; repeated hostile regex does not freeze UI or exhaust workers | QA |
 | AC-13 | Both themes pass computed contrast, live keyboard/focus/announcements, accessibility scan, reduced motion, and rendered responsive checks specified in tasks | QA |
 | AC-14 | Search and execution targets in ch. 4 are measured on recorded environment; production build serves without console/hydration errors | QA |
-| AC-15 | Branding/content scan of all tracked authored files passes; no prohibited themes/inspiration names or non-neutral samples remain | QA, Reviewer |
-| AC-16 | Lint, type-check, tests, build pass; durable QA PASS, reviewer APPROVED with zero unresolved blockers, and delivery summary disclose limitations | Coordinator |
+| AC-15 | Lint, type-check, tests, build pass; durable QA PASS, reviewer APPROVED with zero unresolved blockers, and delivery summary disclose limitations | Coordinator |
 
 ## 6. Non-goals
 

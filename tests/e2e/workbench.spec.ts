@@ -153,7 +153,7 @@ test.describe('Cipher Lab Workbench E2E Suite', () => {
     await page.setViewportSize({ width: 1366, height: 900 });
     await page.goto('/');
 
-    // Load neutral sample input ("Hello, Cipher Lab!")
+    // Load sample input ("Hello, Cipher Lab!")
     await page.getByTestId('input-sample-btn').click();
     await expect(page.getByTestId('input-textarea')).toHaveValue(
       'Hello, Cipher Lab!',

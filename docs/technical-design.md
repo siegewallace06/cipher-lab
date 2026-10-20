@@ -57,7 +57,7 @@ src/lib/crypto-envelope.ts        envelope validation and derivation
 src/lib/detection.ts              bounded ranked suggestions
 src/lib/url-state.ts              versioned fragment import/export
 src/lib/limits.ts                 single source of resource limits
-src/lib/presets.ts                neutral preset definitions
+src/lib/presets.ts                starter preset definitions
 src/lib/parameter-schema.ts       primitive validation, secret annotations
 tests/unit/                       vector, boundary, schema tests
 tests/integration/                worker and workspace tests

@@ -606,7 +606,7 @@ export const jwtOperation: OperationDefinition = {
       if (rawCheck.hasForbiddenKey) {
         throw new OperationFailure(
           'INVALID_INPUT',
-          `JWT ${segmentLabel} contains prohibited property names.`,
+          `JWT ${segmentLabel} contains forbidden property names.`,
         );
       }
       let parsed: unknown;

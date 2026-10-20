@@ -42,7 +42,7 @@ The Coordinator shall create staged tracker tasks from these milestones, preserv
 - Required vectors: standard published encoding/digest/HMAC/CRC32 vectors with cited sources in tests; binary round trips; Unicode code points vs UTF-16 offsets; JSON precision warning; timestamp timezones/negative epochs; malformed padding/hex; XOR non-text bytes; Rail Fence short input; Morse unsupported input; regex empty matches and catastrophic patterns; all-zero and uniform byte entropy.
 - Crypto tests: known envelope fixture with fixed test salt/IV isolated to tests, browser encrypt-to-decrypt and Node/browser cross-provider round trips, fresh randomness across two encryptions, wrong secret, modified ciphertext/tag/IV/salt, unsupported fields/version/KDF/iterations, empty plaintext, no plaintext on failure. Mock randomness only in deterministic unit fixtures, never production.
 - Verify: core commands and actual browser crypto/regex worker tests. Record source and expected outputs for vectors.
-- Deliverables: complete operations, documented neutral sample vectors, tests and actual results.
+- Deliverables: complete operations, documented sample vectors, tests and actual results.
 
 ### M4. Workbench interaction and byte views
 
@@ -71,16 +71,16 @@ The Coordinator shall create staged tracker tasks from these milestones, preserv
 
 - Owner: The Engineer. Dependencies: M5.
 - Objective: resolve cross-module failures and prepare a stable acceptance candidate.
-- References: PRD AC-1 and AC-12-AC-16; technical design ch. 4 and 8.
+- References: PRD AC-1 and AC-12-AC-15; technical design ch. 4 and 8.
 - Files: relevant implementation only, CI, README runtime/deployment instructions. Lead-owned docs change only to correct agreed clarifications; material design changes require escalation.
-- Acceptance: production build starts locally; CSP works with workers/theme bootstrapping; no runtime remote requests; bounded memory and worker cleanup; neutral authored content scan; all core and browser gates pass. State browser support limits honestly.
+- Acceptance: production build starts locally; CSP works with workers/theme bootstrapping; no runtime remote requests; bounded memory and worker cleanup; all core and browser gates pass. State browser support limits honestly.
 - Verify: ch. 5 complete gate plus production route smoke. Do not label development-server behavior production verification.
 - Deliverables: pushed implementation branch, PR title with issue key, commit SHA, executed checks/results, known limitations, ready-for-QA/review handoff.
 
 ## 3. Independent QA task
 
 - Owner: The QA. Stage: 3. Dependencies: M6 stable commit and install instructions. Do not accept Engineer's tests as independent execution.
-- Objective: evaluate PRD AC-1-AC-16 against the same commit proposed for delivery.
+- Objective: evaluate PRD AC-1-AC-15 against the same commit proposed for delivery.
 - Files owned: `docs/qa-evidence.md`, test artifacts; no concurrent product edits. Defects return to Engineer with reproducible steps, expected/actual behavior, severity, environment and affected AC.
 - Execute ch. 5 on clean install, operation positive/negative vectors, hostile regex, binary flows, malformed sharing, secret exclusion, authentication failures, cancellation/stale races, storage/network checks, limit boundaries, unsupported capabilities and XSS text-only probes.
 - Rendered matrix: both themes at widths 320, 768, 1366 and 1920; common laptop at short height; 200% text zoom and reduced motion. Include empty, populated, pending, error, inspector, catalog drawer, share dialog, invalid import, and long unbroken data states. At least representative empty/populated/error/dialog states must be captured in each theme on mobile and laptop; test all remaining states mechanically and capture failures.
