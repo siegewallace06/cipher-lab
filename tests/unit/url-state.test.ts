@@ -17,7 +17,7 @@ function makeFragmentFromJson(rawJson: string): string {
 }
 
 describe('Starter Presets & Shareable URL State (#cl=)', () => {
-  it('defines all 4 neutral starter presets without comic or third-party product references', () => {
+  it('defines all 4 starter presets with valid initial steps and sample payloads', () => {
     expect(PRESET_DEFINITIONS.map((p) => p.id)).toEqual([
       'text-base64-url',
       'hex-bytes-sha256',

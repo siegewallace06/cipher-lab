@@ -354,7 +354,7 @@ function validateJsonObjectKeysStrict(jsonText: string): OperationError | null {
         if (FORBIDDEN_OBJECT_KEYS.has(strVal)) {
           return {
             code: 'INVALID_PARAMETERS',
-            message: 'Prototype-related keys are prohibited in shared URL state.',
+            message: 'Prototype-related keys are forbidden in shared URL state.',
           };
         }
         if (top.keys.has(strVal)) {

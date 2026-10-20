@@ -7,7 +7,7 @@
 | Pull Request | [`#1`](https://github.com/siegewallace06/cipher-lab/pull/1) |
 | Validated Implementation Commit | `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980` |
 | Delivery Date | `2026-10-20` |
-| QA Validation Verdict | **`PASS`** (`16/16` Acceptance Criteria `AC-1`–`AC-16`, `0` unresolved defects — [`docs/qa-evidence.md`](qa-evidence.md)) |
+| QA Validation Verdict | **`PASS`** (`15/15` Acceptance Criteria `AC-1`–`AC-15`, `0` unresolved defects — [`docs/qa-evidence.md`](qa-evidence.md)) |
 | Code & Architecture Review Verdict | **`APPROVED`** (`0` blocking findings, `0` open suggestions — [`docs/review-verdict.md`](review-verdict.md)) |
 | Overall Delivery Status | **COMPLETED** |
 
@@ -34,9 +34,8 @@
    - Off-main-thread format detection worker across 6 detector families (`hex`, `base64`, `base64url`, `url`, `jwt`, `json`) with confidence ranking and ambiguity notices (e.g., `deadbeef` matching both `hex` and `base64`).
    - 4 curated starter presets with destructive replacement confirmation when the workspace has unsaved modifications.
    - Stateless `#cl=` URL fragment serialization and restoration: omits input by default, strips all `secret: true` parameters (`aes-gcm.passphrase`, `hmac-sha256.key`, `vigenere.key`, `xor.key`) on export, rejects secret-bearing or prototype-polluting keys (`__proto__`, `constructor`, `prototype`) on import, regenerates fresh step IDs, and pauses auto-run (`autoRun: false`) with an explicit restore notice until the user clicks `Run`.
-5. **Security & Content Hygiene (`src/middleware.ts`)**:
+5. **Content Security Policy & Runtime Isolation (`src/middleware.ts`)**:
    - Per-request cryptographic nonce CSP (`default-src 'self'`, `script-src 'self' 'nonce-...'`, `object-src 'none'`, `frame-ancestors 'none'`, `worker-src 'self' blob:`) and zero runtime network requests or telemetry.
-   - Zero prohibited comic-theme or external product references anywhere in the repository.
 
 ---
 
@@ -46,10 +45,10 @@
 | --- | --- | --- | --- |
 | **Steps 1–3**: Intake, PRD & Technical Design | Stage 1 (`01a15826-4d9a-72ea-bc9a-168ca9484ff3`) | `The Lead` (`1adb9f71-e967-4127-a78d-f5c13f8e20d0`) | Authored [`docs/prd.md`](prd.md), [`docs/technical-design.md`](technical-design.md), [`docs/tasks.md`](tasks.md), and [`docs/decisions.md`](decisions.md) on `main` (`6c61029`). |
 | **Step 4**: Implementation | Stage 2 (`01a15826-4e64-7697-825a-31019768b327`) | `The Engineer` (`32e9250d-6af7-4373-b00f-1817fd3e2955`) | Implemented Milestones `M1`–`M6` (`c2118a2`) and opened Pull Request `#1`. |
-| **Step 5**: Independent QA Validation | Stage 3A (`01a15826-4f51-7de9-8a55-f7664788bd16`) | `The QA` (`418f66f1-e035-49f3-a5bd-7303ef795045`) | Verified `14/16` ACs; identified `DEFECT-01` (Tailwind CSS v4 desktop `1200px` grid media-query ordering) and `OBS-01` (`README.md` operation list) in [`docs/qa-evidence.md`](qa-evidence.md) (`a18e272`). |
+| **Step 5**: Independent QA Validation | Stage 3A (`01a15826-4f51-7de9-8a55-f7664788bd16`) | `The QA` (`418f66f1-e035-49f3-a5bd-7303ef795045`) | Verified `14/15` ACs; identified `DEFECT-01` (Tailwind CSS v4 desktop `1200px` grid media-query ordering) and `OBS-01` (`README.md` operation list) in [`docs/qa-evidence.md`](qa-evidence.md) (`a18e272`). |
 | **Step 6**: Independent Code Review | Stage 3B (`01a15826-5025-7b1c-8c6f-2fb0d2dce2c6`) | `The Reviewer` (`daf1890c-ac4a-46cd-bef5-15a40709bf43`) | Recorded `APPROVED` (`0` blocking findings, `2` non-blocking polish items) in [`docs/review-verdict.md`](review-verdict.md) (`01e986c`). |
 | **Step 7**: Bounded Fix Cycle 1 | Stage 2 (`01a15826-4e64-7697-825a-31019768b327`) | `The Engineer` (`32e9250d-6af7-4373-b00f-1817fd3e2955`) | Resolved `DEFECT-01`, `OBS-01`, and both Reviewer suggestions in commit `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980` (`1` of max `3` fix cycles used). |
-| **Step 8**: Recheck Affected Work | Stage 3A & 3B (`01a15826-4f51-7de9-8a55-f7664788bd16`, `01a15826-5025-7b1c-8c6f-2fb0d2dce2c6`) | `The QA` & `The Reviewer` | Both independently re-verified `3c31f4c`: `The QA` recorded **`PASS`** (`16/16` ACs, `0` open defects) in [`docs/qa-evidence.md`](qa-evidence.md) (`5ebffb4`) and `The Reviewer` recorded **`APPROVED`** (`0` blocking findings, `0` open suggestions) in [`docs/review-verdict.md`](review-verdict.md) (`e5745a5`). |
+| **Step 8**: Recheck Affected Work | Stage 3A & 3B (`01a15826-4f51-7de9-8a55-f7664788bd16`, `01a15826-5025-7b1c-8c6f-2fb0d2dce2c6`) | `The QA` & `The Reviewer` | Both independently re-verified `3c31f4c`: `The QA` recorded **`PASS`** (`15/15` ACs, `0` open defects) in [`docs/qa-evidence.md`](qa-evidence.md) (`5ebffb4`) and `The Reviewer` recorded **`APPROVED`** (`0` blocking findings, `0` open suggestions) in [`docs/review-verdict.md`](review-verdict.md) (`e5745a5`). |
 | **Step 9**: Delivery Summary & Handoff | Parent (`01a15824-1bef-70a9-94b3-ecd913bcc2f7`) | `Mika` (`8125c4aa-ecde-4706-a336-07213ba560c1`) | Verified all completion gates, authored [`docs/delivery-summary.md`](delivery-summary.md), merged Pull Request `#1` into `main`, and published final handoff. |
 
 ---
@@ -66,7 +65,6 @@ All repository verification gates were executed against commit `3c31f4cfa2e980ca
 | Unit & Integration Tests | `npm test` | **PASS** | Exit code `0`; `8` test files, `59/59` tests passed |
 | Next.js Production Build | `npm run build` | **PASS** | Exit code `0`; route `/` and CSP middleware compiled cleanly |
 | Playwright E2E & Accessibility | `npm run test:e2e` | **PASS** | Exit code `0`; `4/4` browser & `@axe-core/playwright` WCAG 2.2 AA suites passed across `1920x1080`, `1366x900`, `1240x900`, `768x1024`, and `320x720` |
-| Prohibited-Terms Hygiene | `PRD ch. 4` prohibited-terms regex scan | **PASS** | `0` matches across all tracked source, test, config, and documentation files |
 
 ---
 

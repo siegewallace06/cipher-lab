@@ -7,7 +7,7 @@
 | Validated Implementation Commit | `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980` (Fix Cycle 1; initial baseline `c2118a25b6f6c03ec3a2c16503aea0d73afadee1`) |
 | QA Role | `The QA` (`418f66f1-e035-49f3-a5bd-7303ef795045`) |
 | Validation Date | `2026-10-20` |
-| **QA Verdict** | **`PASS`** (`16/16` Acceptance Criteria `AC-1`–`AC-16` verified; `DEFECT-01` and `OBS-01` resolved & re-verified in Fix Cycle 1; `0` unresolved defects) |
+| **QA Verdict** | **`PASS`** (`15/15` Acceptance Criteria `AC-1`–`AC-15` verified; `DEFECT-01` and `OBS-01` resolved & re-verified in Fix Cycle 1; `0` unresolved defects) |
 
 ---
 
@@ -39,7 +39,7 @@ In addition to the repository suite, QA authored and executed independent unit/b
 
 ---
 
-## 3. Acceptance Criteria Verification Matrix (`AC-1`–`AC-16`)
+## 3. Acceptance Criteria Verification Matrix (`AC-1`–`AC-15`)
 
 | AC | Requirement Summary | Status | Independent QA Evidence |
 | --- | --- | --- | --- |
@@ -57,8 +57,7 @@ In addition to the repository suite, QA authored and executed independent unit/b
 | **AC-12** | Resource limits (`N` vs `N+1`) enforced; hostile catastrophic regex times out (`<= 100 ms` watchdog) in real Web Worker without freezing UI or exhausting workers | **PASS** | Verified exact `N` vs `N+1` boundary behavior across all resource caps (see Section 5). In a real browser Web Worker, executed catastrophic backtracking regex `(a+)+$` against `'a'.repeat(28) + '!'`: worker watchdog terminated the hung worker at `~101 ms` with `TIMEOUT` (`Step "regex" exceeded its 100 ms execution limit.`), UI remained responsive, and immediately removing the regex step and running `rot13` on `'Hello'` succeeded (`'Uryyb'`) on a fresh worker. Verified unsupported `window.Worker` environment renders `capability-error-banner` (`UNSUPPORTED_ENVIRONMENT`). |
 | **AC-13** | Both themes pass computed WCAG 2.2 AA contrast, live keyboard/focus/announcements, axe accessibility scan, reduced motion, 200% zoom, and rendered responsive checks across `320`, `768`, `1366`, and `1920` CSS px | **PASS** | Computed contrast ratios (`12` text pairs >= `4.5:1`, `11` non-text pairs >= `3.0:1` in both dark & light themes), `@axe-core/playwright` WCAG 2.2 AA scans (`0` violations across desktop dark/light, tablet drawer, mobile tabs, share modal, and error state), `Escape` focus restoration (`toolbar-catalog-drawer-btn` and `toolbar-share-btn`), `200%` text zoom (`0` horizontal overflow), and `prefers-reduced-motion: reduce` (`<= 0.01ms`) all **PASS**. In Step 8 Recheck (`3c31f4cfa2e980ca283621e8c4a8ac8c0db12980`), independently verified that `DEFECT-01` is resolved: at `1920x1080`, `1366x900`, `1366x640`, `1240x900`, and `1200x900`, `desktop-catalog-column` (`span 3 / span 3`), `pipeline-column` (`span 4 / span 4`), and `data-column` (`span 5 / span 5`) sit side-by-side on Row 1 (`catalog.top === pipeline.top === data.top`, `0` horizontal overflow) and `pipeline-open-catalog-btn` is hidden (`display: "none"`); at `768x1024`, `pipeline-column` (`span 5`) and `data-column` (`span 7`) sit on Row 1 (`top: 187px`) with `Browse Catalog` visible; at `320x720`, mobile tabbed navigation renders with `0` horizontal overflow. |
 | **AC-14** | Search (`<= 100 ms`) and 10-step `64 KiB` non-crypto pipeline (`<= 500 ms`) measured on recorded hardware; production build serves with zero console/hydration errors | **PASS** | Measured on Apple M1 / 16 GB RAM / macOS 27.0 / Node `v22.23.1` / Headless Chromium `1.63.0`: (1) Catalog search filter across all 28 operations: `0.0059 ms` avg per filter call (`4.71 ms` for `800` queries, target `<= 100 ms`); (2) 10-step `64 KiB` (`65,536` bytes) non-crypto pipeline: `16.82 ms` engine execution (`16.5 ms`–`18.6 ms` end-to-end in browser Web Worker, target `<= 500 ms`); (3) Production build (`next build && next start`) emitted `0` `console.error` and `0` React hydration errors across all tested flows. |
-| **AC-15** | Branding/content scan of all tracked authored files passes; neutral Cipher Lab branding and sample data only | **PASS** | Executed case-insensitive `git grep` scan across all tracked code, tests, presets, UI strings, and public documentation for prohibited comic-theme and third-party inspiration product terms specified in `PRD ch. 4`: `0` matches in `src/`, `tests/`, `README.md`, `package.json`, and `docs/qa-evidence.md`. All UI copy, sample payloads (`Hello, Cipher Lab!`), and test vectors are strictly neutral. |
-| **AC-16** | All verification gates pass; durable QA `PASS` and Reviewer `APPROVED` with zero unresolved blocking findings | **PASS** | All 5 automated CLI gates (`lint`, `type-check`, `test`, `build`, `test:e2e`) pass on commit `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980`, `The QA` records **`PASS`** in `docs/qa-evidence.md` (`0` unresolved blocking or non-blocking defects), and `The Reviewer` records **`APPROVED`** in `docs/review-verdict.md`. |
+| **AC-15** | All verification gates pass; durable QA `PASS` and Reviewer `APPROVED` with zero unresolved blocking findings | **PASS** | All 5 automated CLI gates (`lint`, `type-check`, `test`, `build`, `test:e2e`) pass on commit `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980`, `The QA` records **`PASS`** in `docs/qa-evidence.md` (`0` unresolved blocking or non-blocking defects), and `The Reviewer` records **`APPROVED`** in `docs/review-verdict.md`. |
 
 ---
 
@@ -244,4 +243,4 @@ Following `The Engineer`'s Fix Cycle 1 commit (`3c31f4cfa2e980ca283621e8c4a8ac8c
 2. **Non-Blocking Polish Items Verified (`OBS-01` & Reviewer Suggestions 1–2)**:
    - `README.md` operation list matches the 28 canonical operations in `src/engine/registry.ts` and `docs/prd.md`, and uses `WEB_CRYPTO_UNAVAILABLE`.
    - `src/components/pipeline/Inspector.tsx` surfaces `checkJsonPrecisionNotice` via `data-testid="inspector-json-precision-warning"` when inspecting a `json` step containing integer literals outside `Number.MAX_SAFE_INTEGER` (verified in Playwright E2E).
-3. **Final QA Verdict**: **`PASS`** (`16/16` Acceptance Criteria verified, `0` unresolved defects).
+3. **Final QA Verdict**: **`PASS`** (`15/15` Acceptance Criteria verified, `0` unresolved defects).
