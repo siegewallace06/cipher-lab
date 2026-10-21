@@ -76,6 +76,32 @@ npm run test:e2e
 2. `reuseExistingServer` is set to `false` so tests always execute against a fresh production server instance owned by the Playwright run.
 3. Upon test completion (pass or fail), Playwright terminates the server process and disposes all browser contexts and Web Workers.
 
+## Docker (Local Deployment)
+
+Cipher Lab includes a multi-stage `Dockerfile` (`node:20-alpine` with Next.js `output: 'standalone'` and non-root runtime user `nextjs`) and a local `docker-compose.yml` for one-command local containerized builds and execution.
+
+### Option 1: Docker Compose (Recommended)
+
+```sh
+# Build the production image and start the container in the foreground on http://localhost:3000
+docker compose up --build
+
+# Or build and run in detached background mode
+docker compose up -d --build
+
+# Stop and remove the local container
+docker compose down
+```
+
+### Option 2: Standalone Docker CLI
+
+```sh
+# Build the production image and run it on port 3000
+docker build -t cipher-lab . && docker run --rm -p 3000:3000 cipher-lab
+```
+
+> **Browser Secure Context Note**: Open the containerized application via `http://localhost:3000` or `http://127.0.0.1:3000`. Modern browsers treat `localhost` and `127.0.0.1` as secure contexts (`window.isSecureContext === true`), which is required for Web Crypto API (`crypto.subtle`) operations such as SHA-1/256/384/512, HMAC-SHA256, and AES-256-GCM.
+
 ## Resource Bounds & Known Browser Limitations
 
 - **Input & Step Byte Limits**: Maximum input or single-step output size is 1 MiB (`1,048,576` bytes); maximum cumulative retained step output per run is 16 MiB (`16,777,216` bytes); maximum pipeline length is 32 steps; ordinary step timeout is 2,000 ms (15,000 ms per AES-GCM step, 100 ms per regex step, 30,000 ms total run budget).

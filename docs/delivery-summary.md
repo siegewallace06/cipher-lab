@@ -3,12 +3,12 @@
 | Field | Value |
 | --- | --- |
 | Project | **Cipher Lab** (`3626680c-3d4a-41b5-845d-c81d256fa7e6`) |
-| Parent Delivery Task | `01a15824-1bef-70a9-94b3-ecd913bcc2f7` |
-| Pull Request | [`#1`](https://github.com/siegewallace06/cipher-lab/pull/1) |
-| Validated Implementation Commit | `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980` |
-| Delivery Date | `2026-10-20` |
-| QA Validation Verdict | **`PASS`** (`15/15` Acceptance Criteria `AC-1`–`AC-15`, `0` unresolved defects — [`docs/qa-evidence.md`](qa-evidence.md)) |
-| Code & Architecture Review Verdict | **`APPROVED`** (`0` blocking findings, `0` open suggestions — [`docs/review-verdict.md`](review-verdict.md)) |
+| Parent Delivery Tasks | `ALFRED-22` (`01a15dd6-b46d-7948-b350-8bed10bdb0ed` — Docker & Docker Compose Local Deployment) · `01a15824-1bef-70a9-94b3-ecd913bcc2f7` (Core Workbench v1) |
+| Pull Requests | [`#3`](https://github.com/siegewallace06/cipher-lab/pull/3) (Docker Local Deployment) · [`#1`](https://github.com/siegewallace06/cipher-lab/pull/1) (Core Workbench v1) |
+| Validated Implementation Commits | `37c6d689dc09ddbba820391d7960db43b5c31aad` (PR `#3`) · `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980` (PR `#1`) |
+| Delivery Date | `2026-10-21` |
+| QA Validation Verdict | **`PASS`** (`ALFRED-24` Docker & Docker Compose validation + `15/15` Acceptance Criteria `AC-1`–`AC-15`, `0` unresolved defects — [`docs/qa-evidence.md`](qa-evidence.md)) |
+| Code & Architecture Review Verdict | **`APPROVED`** (`ALFRED-25` Docker & Docker Compose review + Core review, `0` blocking findings, `0` open suggestions — [`docs/review-verdict.md`](review-verdict.md)) |
 | Overall Delivery Status | **COMPLETED** |
 
 ---
@@ -36,10 +36,17 @@
    - Stateless `#cl=` URL fragment serialization and restoration: omits input by default, strips all `secret: true` parameters (`aes-gcm.passphrase`, `hmac-sha256.key`, `vigenere.key`, `xor.key`) on export, rejects secret-bearing or prototype-polluting keys (`__proto__`, `constructor`, `prototype`) on import, regenerates fresh step IDs, and pauses auto-run (`autoRun: false`) with an explicit restore notice until the user clicks `Run`.
 5. **Content Security Policy & Runtime Isolation (`src/middleware.ts`)**:
    - Per-request cryptographic nonce CSP (`default-src 'self'`, `script-src 'self' 'nonce-...'`, `object-src 'none'`, `frame-ancestors 'none'`, `worker-src 'self' blob:`) and zero runtime network requests or telemetry.
+6. **Production-Ready Docker & Docker Compose Local Deployment (`Dockerfile`, `.dockerignore`, `docker-compose.yml`, `next.config.ts`, `tests/unit/docker-config.test.ts`, `README.md`)**:
+   - **Next.js Standalone Build (`next.config.ts`)**: Configured `output: 'standalone'` while preserving strict mode, `poweredByHeader: false`, and static asset security headers (`X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`).
+   - **Multi-Stage `Dockerfile`**: 3-stage `node:20-alpine` build (`deps` → `builder` → `runner`) with deterministic `npm ci`, `mkdir -p /app/public && npm run build`, non-root `nextjs:nodejs` (`1001:1001`) runtime user, `NODE_ENV=production`, `NEXT_TELEMETRY_DISABLED=1`, `PORT=3000`, `HOSTNAME="0.0.0.0"`, Node HTTP `HEALTHCHECK` against `http://127.0.0.1:3000/`, and `CMD ["node", "server.js"]`.
+   - **Build Context Hygiene (`.dockerignore`)**: Excludes `node_modules`, `.next`, `out`, `dist`, `coverage`, `test-results`, `playwright-report`, `blob-report`, `playwright/.cache`, `.git`, `.github`, `.env*`, `*.log`, `*.tsbuildinfo`, `.DS_Store`, and `docs` while preserving all required build inputs.
+   - **One-Command Local Orchestration (`docker-compose.yml` & `README.md`)**: Defines the local `cipher-lab` service on port `3000:3000` with `restart: unless-stopped` and an HTTP healthcheck (`http://127.0.0.1:3000/`), documented in `README.md` (`docker compose up --build`, `docker compose up -d --build`, `docker compose down`, and standalone `docker build` / `docker run` commands, plus the `localhost` / `127.0.0.1` secure-context note for Web Crypto `crypto.subtle`).
 
 ---
 
-## 2. 9-Step Delivery Workflow Trace
+## 2. Delivery Workflow Trace
+
+### 2.1 Core Workbench Delivery (`01a15824-1bef-70a9-94b3-ecd913bcc2f7` / PR `#1`)
 
 | Step | Stage / Task ID | Owner | Outcome & Durable Artifact |
 | --- | --- | --- | --- |
@@ -51,20 +58,31 @@
 | **Step 8**: Recheck Affected Work | Stage 3A & 3B (`01a15826-4f51-7de9-8a55-f7664788bd16`, `01a15826-5025-7b1c-8c6f-2fb0d2dce2c6`) | `The QA` & `The Reviewer` | Both independently re-verified `3c31f4c`: `The QA` recorded **`PASS`** (`15/15` ACs, `0` open defects) in [`docs/qa-evidence.md`](qa-evidence.md) (`5ebffb4`) and `The Reviewer` recorded **`APPROVED`** (`0` blocking findings, `0` open suggestions) in [`docs/review-verdict.md`](review-verdict.md) (`e5745a5`). |
 | **Step 9**: Delivery Summary & Handoff | Parent (`01a15824-1bef-70a9-94b3-ecd913bcc2f7`) | `Mika` (`8125c4aa-ecde-4706-a336-07213ba560c1`) | Verified all completion gates, authored [`docs/delivery-summary.md`](delivery-summary.md), merged Pull Request `#1` into `main`, and published final handoff. |
 
+### 2.2 Docker & Docker Compose Local Deployment Delivery (`ALFRED-22` / PR `#3`)
+
+| Step | Stage / Task ID | Owner | Outcome & Durable Artifact |
+| --- | --- | --- | --- |
+| **Step 4**: Implementation | Stage 1 (`ALFRED-23` / `01a15dda-890e-73ee-a656-2fa0d4212186`) | `The Engineer` (`32e9250d-6af7-4373-b00f-1817fd3e2955`) | Added `Dockerfile`, `.dockerignore`, `docker-compose.yml`, and `tests/unit/docker-config.test.ts`, updated `next.config.ts` (`output: 'standalone'`) and `README.md` (`37c6d689dc09ddbba820391d7960db43b5c31aad`), and opened Pull Request [`#3`](https://github.com/siegewallace06/cipher-lab/pull/3). |
+| **Step 5**: Independent QA Validation | Stage 2A (`ALFRED-24` / `01a15dda-89ae-77cc-8cbe-17a22ac31253`) | `The QA` (`418f66f1-e035-49f3-a5bd-7303ef795045`) | Executed all CLI gates (`9/9` unit/integration files `64/64` tests, `4/4` E2E tests, `docker compose config`) plus standalone server, CSP nonce header, and positive/negative `HEALTHCHECK` probes; recorded **`PASS`** (`0` blocking defects) in [`docs/qa-evidence.md`](qa-evidence.md) (`06ff2bb8bd7b62f50158258abf38bb13112488c3`). |
+| **Step 6**: Independent Code Review | Stage 2B (`ALFRED-25` / `01a15dda-8a74-7904-9bcb-101a5fefe6b7`) | `The Reviewer` (`daf1890c-ac4a-46cd-bef5-15a40709bf43`) | Audited the container diff, layer caching, `COPY` path accounting, non-root runtime user, and test suite; recorded **`APPROVED`** (`0` blocking findings, `0` non-blocking findings) in [`docs/review-verdict.md`](review-verdict.md) (`e4ffc312f203845b4fea9399f43a5073b3800be8`). |
+| **Step 9**: Delivery Summary & Handoff | Parent (`ALFRED-22` / `01a15dd6-b46d-7948-b350-8bed10bdb0ed`) | `Mika` (`8125c4aa-ecde-4706-a336-07213ba560c1`) | Verified all completion gates, updated [`docs/delivery-summary.md`](delivery-summary.md), merged Pull Request [`#3`](https://github.com/siegewallace06/cipher-lab/pull/3) into `main`, and posted final handoff on `ALFRED-22`. |
+
 ---
 
 ## 3. Executed Verification Gates
 
-All repository verification gates were executed against commit `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980`:
+All repository verification gates were executed against commit `37c6d689dc09ddbba820391d7960db43b5c31aad` (PR `#3`):
 
 | Verification Check | Command | Status | Result Summary |
 | --- | --- | --- | --- |
 | Clean Dependency Install | `npm ci` | **PASS** | Exit code `0`; deterministic lockfile install |
 | ESLint Static Analysis | `npm run lint` | **PASS** | Exit code `0`; `0` errors, `0` warnings |
 | TypeScript Strict Check | `npm run type-check` | **PASS** | Exit code `0`; `tsc --noEmit` clean |
-| Unit & Integration Tests | `npm test` | **PASS** | Exit code `0`; `8` test files, `59/59` tests passed |
-| Next.js Production Build | `npm run build` | **PASS** | Exit code `0`; route `/` and CSP middleware compiled cleanly |
+| Unit & Integration Tests | `npm test` | **PASS** | Exit code `0`; `9` test files, `64/64` tests passed (including `tests/unit/docker-config.test.ts` `5/5`) |
+| Next.js Production Build | `npm run build` | **PASS** | Exit code `0`; route `/` (`39.8 kB` page, `143 kB` First Load JS), CSP middleware (`34.4 kB`), and standalone bundle (`.next/standalone/server.js`) compiled cleanly |
 | Playwright E2E & Accessibility | `npm run test:e2e` | **PASS** | Exit code `0`; `4/4` browser & `@axe-core/playwright` WCAG 2.2 AA suites passed across `1920x1080`, `1366x900`, `1240x900`, `768x1024`, and `320x720` |
+| Docker Compose Validation | `docker compose config` | **PASS** | Exit code `0`; validated and rendered normalized `cipher-lab` service definition (`Docker Compose v2.31.0-desktop.2`) |
+| Standalone Server & Healthcheck Probe | `node .next/standalone/server.js` + `HEALTHCHECK` | **PASS** | HTTP `200 OK` on `/` and `/_next/static/*`, per-request CSP nonce header, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, and exit code `0` on the container `HEALTHCHECK` probe |
 
 ---
 
@@ -74,3 +92,5 @@ All repository verification gates were executed against commit `3c31f4cfa2e980ca
 2. **Intentional Resource Guardrails**: To keep the browser tab responsive without a backend, each step is bounded to `1 MiB` (`1,048,576` bytes), cumulative retained step outputs to `16 MiB` (`16,777,216` bytes), pipelines to `32` steps, JSON parsing to depth `64` / `100,000` nodes, regex execution to `100 ms`, and `#cl=` URL fragments to `32,768` characters (`24,576` decoded JSON bytes).
 3. **Stateless Secret Stripping**: Shared `#cl=` URLs never include parameters marked `secret: true` (`aes-gcm` passphrase, `hmac-sha256` key, `vigenere` key, `xor` key). Recipients of a shared pipeline containing keyed steps must enter their own secret key or passphrase before running the pipeline.
 4. **JWT Inspection Without Remote Key Verification**: The `jwt` operation decodes and inspects compact 3-segment JWT headers and claims (`iat`, `nbf`, `exp`) locally and always marks `verified: false`; it does not fetch remote JWKS keys or verify cryptographic signatures.
+5. **Browser Secure Context Requirement for Containerized Access**: Web Crypto API operations (`AES-256-GCM`, `HMAC-SHA256`, `SHA-*`) require a browser Secure Context (`window.isSecureContext`). When running via Docker locally, access the workbench at `http://localhost:3000` or `http://127.0.0.1:3000` (which browsers treat as secure contexts over HTTP) or place a TLS reverse proxy in front of the container when exposing it on a non-loopback LAN address.
+6. **Build Host Docker Daemon Availability During Automated Verification**: On the verification host, the Docker CLI (`v27.4.0`) and Docker Compose (`v2.31.0-desktop.2`) were available (`docker compose config` exited `0`), whereas the local Docker Desktop daemon socket was not running (`docker info` unavailable). Container configuration integrity, `COPY` path accounting, and the exact Next.js standalone server entrypoint (`node .next/standalone/server.js`) and `HEALTHCHECK` probe were verified directly on the host.

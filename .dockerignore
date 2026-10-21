@@ -1,0 +1,30 @@
+# Dependencies & build outputs
+node_modules
+.next
+out
+dist
+
+# Test & coverage artifacts
+coverage
+test-results
+playwright-report
+blob-report
+playwright/.cache
+
+# Version control & CI metadata
+.git
+.github
+.gitignore
+
+# Environment & local secrets
+.env*
+
+# Logs, caches & OS metadata
+*.log
+npm-debug.log*
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+
+# Documentation
+docs

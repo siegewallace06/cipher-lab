@@ -2,12 +2,12 @@
 
 | Field | Value |
 | --- | --- |
-| Stage | Stage 3A — Independent QA Validation & Step 8 Recheck |
-| Pull Request | `#1` |
-| Validated Implementation Commit | `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980` (Fix Cycle 1; initial baseline `c2118a25b6f6c03ec3a2c16503aea0d73afadee1`) |
+| Stage | Stage 2A (`ALFRED-24` under `ALFRED-22`) — Independent QA Validation of Docker & Docker Compose Local Deployment (plus Stage 3A / Step 8 Recheck baseline) |
+| Pull Request | `#3` (Docker & Docker Compose local deployment) · `#1` (Core workbench baseline) |
+| Validated Implementation Commit | `37c6d689dc09ddbba820391d7960db43b5c31aad` on `feat/alfred-22-docker-local-deployment` (PR `#3`); baseline `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980` (PR `#1`) |
 | QA Role | `The QA` (`418f66f1-e035-49f3-a5bd-7303ef795045`) |
-| Validation Date | `2026-10-20` |
-| **QA Verdict** | **`PASS`** (`15/15` Acceptance Criteria `AC-1`–`AC-15` verified; `DEFECT-01` and `OBS-01` resolved & re-verified in Fix Cycle 1; `0` unresolved defects) |
+| Validation Date | `2026-10-21` |
+| **QA Verdict** | **`PASS`** (`ALFRED-22` Docker & Docker Compose local deployment requirements + `15/15` Acceptance Criteria `AC-1`–`AC-15` verified; `9/9` unit/integration suites (`64/64` tests) and `4/4` Playwright E2E + axe suites pass; `0` unresolved blocking or non-blocking defects) |
 
 ---
 
@@ -244,3 +244,44 @@ Following `The Engineer`'s Fix Cycle 1 commit (`3c31f4cfa2e980ca283621e8c4a8ac8c
    - `README.md` operation list matches the 28 canonical operations in `src/engine/registry.ts` and `docs/prd.md`, and uses `WEB_CRYPTO_UNAVAILABLE`.
    - `src/components/pipeline/Inspector.tsx` surfaces `checkJsonPrecisionNotice` via `data-testid="inspector-json-precision-warning"` when inspecting a `json` step containing integer literals outside `Number.MAX_SAFE_INTEGER` (verified in Playwright E2E).
 3. **Final QA Verdict**: **`PASS`** (`15/15` Acceptance Criteria verified, `0` unresolved defects).
+
+---
+
+## 10. Stage 2A Independent QA Validation: Docker & Docker Compose Local Deployment (`ALFRED-22` / `ALFRED-24`, Commit `37c6d689dc09ddbba820391d7960db43b5c31aad`, PR `#3`)
+
+### 10.1 Fresh Checkout & Executed Verification Gates
+
+`The QA` performed an independent fresh checkout of branch `feat/alfred-22-docker-local-deployment` at commit `37c6d689dc09ddbba820391d7960db43b5c31aad` (PR `#3`) and executed every repository verification gate synchronously:
+
+| Gate Command | Exit Code | Executed Result Summary (`37c6d689dc09ddbba820391d7960db43b5c31aad`) |
+| --- | --- | --- |
+| `npm ci` | `0` | Clean deterministic install (`added 289 packages, and audited 290 packages in 7s`). |
+| `npm run lint` | `0` | `eslint .` exited `0` with `0` errors and `0` warnings. |
+| `npm run type-check` | `0` | `tsc --noEmit` exited `0` with `0` TypeScript errors. |
+| `npm test` | `0` | `vitest run` passed `9/9` test files and `64/64` tests (`1.96s` duration), including `tests/unit/docker-config.test.ts` (`5/5` tests). |
+| `npm run build` | `0` | `next build` succeeded with `output: 'standalone'`; route `/` compiled (`39.8 kB` page, `143 kB` First Load JS, `34.4 kB` Middleware) and generated `.next/standalone/server.js`. |
+| `npm run test:e2e` | `0` | `playwright test` passed `4/4` E2E & WCAG 2.2 AA accessibility tests (`6.6s` duration). |
+| `docker compose config` | `0` | Docker Compose CLI (`v2.31.0-desktop.2`) validated and rendered the normalized `cipher-lab` service configuration with exit code `0`. |
+
+### 10.2 Docker & Docker Compose Requirements Verification Matrix (`ALFRED-22` / `ALFRED-23`)
+
+| Requirement Area | Verification Check | Status | Independent QA Evidence |
+| --- | --- | --- | --- |
+| **`Dockerfile` Multi-Stage Build & Non-Root Runtime** | 3-stage `node:20-alpine` (`deps` -> `builder` -> `runner`), `npm ci`, `npm run build`, `NODE_ENV=production`, `NEXT_TELEMETRY_DISABLED=1`, `PORT=3000`, `HOSTNAME="0.0.0.0"`, non-root `USER nextjs` (`1001:1001`), `EXPOSE 3000`, `HEALTHCHECK`, `CMD ["node", "server.js"]` | **PASS** | Inspected `Dockerfile` (lines 1–44) and verified all stage names, base images, environment variables, system user creation (`addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs`), `--chown=nextjs:nodejs` ownership on all runtime `COPY` instructions, `USER nextjs`, `EXPOSE 3000`, `HEALTHCHECK`, and `CMD ["node", "server.js"]`. |
+| **`Dockerfile` `COPY` Path Accounting & Next.js 15 Standalone Bundle** | Every `COPY` source path exists in build context or upstream stage outputs (`mkdir -p /app/public`, `/app/.next/standalone`, `/app/.next/static`); `next.config.ts` sets `output: 'standalone'` without requiring `typescript` at runtime | **PASS** | Inspected `next.config.ts` (`output: 'standalone'`) and `Dockerfile` line 19 (`RUN mkdir -p /app/public && npm run build`). Tested copying `.next/standalone`, `.next/static`, and `public/` into an isolated directory outside the repository tree (with no ancestor `node_modules` or `typescript` package) and running `node server.js`: server started cleanly (`isolatedStandaloneStatus: 200`, `stderr: ""`). |
+| **`.dockerignore` Build Context Hygiene** | Excludes `node_modules`, `.next`, `out`, `dist`, `coverage`, `test-results`, `playwright-report`, `blob-report`, `playwright/.cache`, `.git`, `.github`, `.env*`, `*.log`, `*.tsbuildinfo`, `.DS_Store`, `docs` while preserving all build inputs | **PASS** | Inspected `.dockerignore` (lines 1–30) and verified all required exclusions are present and no required build inputs (`package.json`, `package-lock.json`, `next.config.ts`, `tsconfig.json`, `postcss.config.mjs`, `src`) are excluded. |
+| **`docker-compose.yml` Local Service Definition** | Defines `cipher-lab` service (`context: .`, `dockerfile: Dockerfile`), port `3000:3000`, `NODE_ENV=production`, `NEXT_TELEMETRY_DISABLED="1"`, `PORT="3000"`, `HOSTNAME="0.0.0.0"`, `restart: unless-stopped`, HTTP `healthcheck` against `http://127.0.0.1:3000/`, no external cloud/DB dependencies | **PASS** | Inspected `docker-compose.yml` (lines 1–26) and executed `docker compose config` (exit code `0`). Confirmed strictly local configuration with zero external services or networks. |
+| **Standalone Server Runtime, Security Headers & `HEALTHCHECK` Probe** | Execute `node .next/standalone/server.js` (with `.next/static` copied into `.next/standalone/.next/static`) and verify HTTP `200`, per-request CSP nonce header, security headers, static asset serving, and positive/negative `HEALTHCHECK` probes | **PASS** | Executed standalone server on `127.0.0.1:3210` and verified: `GET /` -> `200 OK`; `Content-Security-Policy` -> `default-src 'self'; script-src 'self' 'nonce-q+tkneKikvJEZBKew/+lGw=='; ...`; consecutive requests produce distinct cryptographic nonces (`q+tkneKikvJEZBKew/+lGw==` != `MMcNhbKtQsoXtJJ7086LRQ==`); `X-Content-Type-Options: nosniff`; `Referrer-Policy: no-referrer`; `X-Frame-Options: DENY`; `X-Powered-By: null`; `GET /_next/static/css/145ad5c2c2963a77.css` -> `200 OK` with security headers; exact `Dockerfile` `HEALTHCHECK` command exited `0` against live `/`, exited `1` against non-2xx `/nonexistent-healthcheck-path` (`404`), and exited `1` against closed port `3219`. |
+| **Documentation (`README.md`)** | Documents Docker Compose (`docker compose up --build`, `docker compose up -d --build`, `docker compose down`), standalone Docker CLI (`docker build -t cipher-lab . && docker run --rm -p 3000:3000 cipher-lab`), and browser secure-context note (`http://localhost:3000` / `http://127.0.0.1:3000` for `crypto.subtle`) | **PASS** | Inspected `README.md` lines 79–104 and verified all commands and the Web Crypto API secure-context note are clear and accurate. |
+
+### 10.3 Environmental Note (Host Docker Daemon)
+
+- **Executed Check**: `docker info` (Docker CLI `27.4.0`, Docker Compose `v2.31.0-desktop.2`).
+- **Result**: `Cannot connect to the Docker daemon at unix:///Users/modinity/.docker/run/docker.sock. Is the docker daemon running?` (exit code `1`).
+- **Mitigation & Verification Coverage**: Because the Docker Desktop daemon is not running on this validation host, `docker build` and live container execution could not be invoked against a local daemon socket. Per the `ALFRED-24` validation checklist, `The QA` validated `docker compose config` via the Docker Compose CLI (exit code `0`), verified all `Dockerfile` / `.dockerignore` / `docker-compose.yml` invariants via `tests/unit/docker-config.test.ts` (`5/5` passing), and directly executed the exact Next.js standalone runtime bundle (`node server.js` in an isolated directory layout matching the `Dockerfile` `runner` stage) and the exact Node HTTP `HEALTHCHECK` probe command.
+
+### 10.4 Stage 2A QA Verdict
+
+- **Blocking Defects**: `0`
+- **Non-Blocking Defects**: `0`
+- **QA Verdict**: **`PASS`**
