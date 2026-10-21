@@ -1,12 +1,13 @@
 # Code & Architecture Review Verdict — Cipher Lab
 
-- **Stage**: Stage 3B — Independent Code & Architecture Review & Step 8 Recheck
-- **Review Task ID**: `01a15826-5025-7b1c-8c6f-2fb0d2dce2c6`
-- **Parent Task ID**: `01a15824-1bef-70a9-94b3-ecd913bcc2f7`
-- **Implementation Task ID**: `01a15826-4e64-7697-825a-31019768b327`
-- **Pull Request**: [`#1`](https://github.com/siegewallace06/cipher-lab/pull/1)
-- **Initial Reviewed Commit**: `c2118a25b6f6c03ec3a2c16503aea0d73afadee1`
-- **Fix Cycle 1 Re-Reviewed Commit**: `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980`
+- **Stage**: Stage 2B — Independent Code Review of Docker & Docker Compose Local Deployment PR (`ALFRED-25`) & Prior Stage 3B Core Review
+- **Review Task ID**: `01a15dda-8a74-7904-9bcb-101a5fefe6b7` (`ALFRED-25`) / `01a15826-5025-7b1c-8c6f-2fb0d2dce2c6`
+- **Parent Task ID**: `01a15dd6-b46d-7948-b350-8bed10bdb0ed` (`ALFRED-22`) / `01a15824-1bef-70a9-94b3-ecd913bcc2f7`
+- **Implementation Task ID**: `01a15dda-890e-73ee-a656-2fa0d4212186` (`ALFRED-23`) / `01a15826-4e64-7697-825a-31019768b327`
+- **Pull Request**: [`#3`](https://github.com/siegewallace06/cipher-lab/pull/3) (Docker Local Deployment) / [`#1`](https://github.com/siegewallace06/cipher-lab/pull/1) (Core Application)
+- **Reviewed Commit (PR #3)**: `37c6d689dc09ddbba820391d7960db43b5c31aad`
+- **Initial Reviewed Commit (PR #1)**: `c2118a25b6f6c03ec3a2c16503aea0d73afadee1`
+- **Fix Cycle 1 Re-Reviewed Commit (PR #1)**: `3c31f4cfa2e980ca283621e8c4a8ac8c0db12980`
 - **Reviewer**: `The Reviewer` (`daf1890c-ac4a-46cd-bef5-15a40709bf43`)
 - **Review Verdict**: **`APPROVED`**
 
@@ -118,3 +119,46 @@ The Reviewer independently executed the following verification commands on initi
 
 3. **Reviewer Suggestion 2 (`src/components/pipeline/Inspector.tsx:59-64, 246-254` Inline `checkJsonPrecisionNotice` Warning) — `RESOLVED`**:
    - `Inspector.tsx` now evaluates `checkJsonPrecisionNotice(utf8Text)` when inspecting a `json` step and renders an inline warning `<StatusMessage testId="inspector-json-precision-warning" />` when integers outside `Number.MAX_SAFE_INTEGER` (`±(2^53 - 1)`) are present, backed by an E2E assertion in `tests/e2e/workbench.spec.ts:212-220`.
+
+---
+
+## 6. Stage 2B Independent Code Review — Docker & Docker Compose Local Deployment (`ALFRED-22` / `ALFRED-25`, PR `#3`)
+
+- **Review Sub-Issue**: `ALFRED-25` (`01a15dda-8a74-7904-9bcb-101a5fefe6b7`)
+- **Parent Issue**: `ALFRED-22` (`01a15dd6-b46d-7948-b350-8bed10bdb0ed`)
+- **Implementation Sub-Issue**: `ALFRED-23` (`01a15dda-890e-73ee-a656-2fa0d4212186`)
+- **Branch**: `feat/alfred-22-docker-local-deployment`
+- **Reviewed Commit SHA**: `37c6d689dc09ddbba820391d7960db43b5c31aad`
+- **Pull Request**: [`#3`](https://github.com/siegewallace06/cipher-lab/pull/3)
+- **Review Verdict**: **`APPROVED`**
+
+### 6.1 Diff & Container Best-Practices Audit (`git diff origin/main...HEAD`)
+
+1. **`Dockerfile` (`Dockerfile:1-44`)**:
+   - **Multi-Stage Architecture & Layer Caching**: Uses `node:20-alpine` across three explicit stages (`deps` at line 4, `builder` at line 11, and `runner` at line 22). `package.json` and `package-lock.json` are copied first (`Dockerfile:7`) before running deterministic `npm ci` (`Dockerfile:8`), ensuring Docker layer caching is preserved when source files change.
+   - **Build & `COPY` Path Integrity**: `Dockerfile:19` executes `RUN mkdir -p /app/public && npm run build`, guaranteeing `/app/public` exists prior to the runner stage `COPY` even though the repository has no tracked `public/` directory. The `runner` stage copies only `/app/public` (`Dockerfile:33`), `/app/.next/standalone` (`Dockerfile:34`), and `/app/.next/static` (`Dockerfile:35`) with `--chown=nextjs:nodejs`, keeping the production runtime image minimal and free of build-time devDependencies or source trees.
+   - **Non-Root Security & Runtime Configuration**: Creates system group/user `nodejs` (`GID 1001`) and `nextjs` (`UID 1001`) (`Dockerfile:30-31`), switches to `USER nextjs` (`Dockerfile:37`), sets `NODE_ENV=production`, `NEXT_TELEMETRY_DISABLED=1`, `PORT=3000`, and `HOSTNAME="0.0.0.0"` (`Dockerfile:25-28`), exposes port `3000` (`Dockerfile:39`), configures a container `HEALTHCHECK` against `http://127.0.0.1:3000/` using Node's built-in `fetch` (`Dockerfile:41-42`), and starts the standalone server via `CMD ["node", "server.js"]` (`Dockerfile:44`).
+2. **`.dockerignore` (`.dockerignore:1-30`)**:
+   - Excludes `node_modules`, `.next`, `out`, `dist`, `coverage`, `test-results`, `playwright-report`, `blob-report`, `playwright/.cache`, `.git`, `.github`, `.gitignore`, `.env*`, `*.log`, `npm-debug.log*`, `*.tsbuildinfo`, `next-env.d.ts`, `.DS_Store`, and `docs` while preserving all required build inputs (`package.json`, `package-lock.json`, `next.config.ts`, `tsconfig.json`, `postcss.config.mjs`, `src/`).
+3. **`docker-compose.yml` (`docker-compose.yml:1-26`)**:
+   - Defines a clean, local-only `cipher-lab` service building from `context: .` and `dockerfile: Dockerfile`, mapping `3000:3000`, setting `NODE_ENV: production`, `NEXT_TELEMETRY_DISABLED: "1"`, `PORT: "3000"`, `HOSTNAME: "0.0.0.0"`, `restart: unless-stopped`, and an HTTP `healthcheck` probing `http://127.0.0.1:3000/`, with zero external services, databases, or secrets.
+4. **`next.config.ts`, `README.md`, and `tests/unit/docker-config.test.ts`**:
+   - `next.config.ts:4` enables `output: 'standalone'` while preserving `reactStrictMode: true`, `poweredByHeader: false`, and static asset security headers (`X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`).
+   - `README.md:79-103` documents both Docker Compose (`docker compose up --build`, `docker compose up -d --build`, `docker compose down`) and standalone Docker CLI (`docker build -t cipher-lab . && docker run --rm -p 3000:3000 cipher-lab`) workflows, including the `localhost` / `127.0.0.1` secure-context note for Web Crypto (`crypto.subtle`).
+   - `tests/unit/docker-config.test.ts:1-197` adds 5 unit tests verifying `nextConfig.output === 'standalone'`, `Dockerfile` multi-stage structure and non-root execution, complete `COPY` source-path accounting against upstream stage outputs and `.dockerignore`, `.dockerignore` hygiene, and `docker-compose.yml` service invariants.
+
+### 6.2 Independent Verification Audit Results
+
+1. `npm ci` → **PASS** (0 errors)
+2. `npm run lint` (`eslint .`) → **PASS** (0 errors, 0 warnings)
+3. `npm run type-check` (`tsc --noEmit`) → **PASS** (0 errors)
+4. `npm test` (`vitest run`) → **PASS** (9 test files, 64 tests passed, including all 5 tests in `tests/unit/docker-config.test.ts`)
+5. `npm run build` (`next build`) → **PASS** (standalone production bundle emitted at `.next/standalone/server.js`)
+6. `docker compose config` → **PASS** (exited `0` with valid rendered Compose configuration)
+7. Standalone server runtime & middleware probe (`NODE_ENV=production PORT=3210 HOSTNAME=127.0.0.1 node .next/standalone/server.js` with `.next/static` copied to `.next/standalone/.next/static`) → **PASS** (`GET /` returned HTTP `200` with per-request `Content-Security-Policy` nonce header from `src/middleware.ts`, `X-Frame-Options: DENY`, and `X-Content-Type-Options: nosniff`; static chunk `GET /_next/static/chunks/webpack-*.js` returned HTTP `200` with `X-Content-Type-Options: nosniff`). *(Note: The host Docker daemon was not running during verification (`docker info` unavailable), which is a host environment limitation; container config and standalone runtime entrypoint were verified directly.)*
+
+### 6.3 Findings Summary (PR `#3`)
+
+- **Blocking Findings**: **0**
+- **Non-Blocking Suggestions**: **0**
+- **Review Verdict**: **`APPROVED`**
